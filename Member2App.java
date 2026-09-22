@@ -1,5 +1,5 @@
 
-// 1. Service Request Node (Queue සඳහා)
+// 1. Service Request Node 
 class ServiceRequestNode {
     int studentID;
     String studentName;
