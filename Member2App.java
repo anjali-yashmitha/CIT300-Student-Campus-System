@@ -63,7 +63,7 @@ class StudentServiceQueue {
     }
 }
 
-// 3. Action History Node (Stack සඳහා)
+// 3. Action History Node
 class ActionNode {
     String actionDescription;
     ActionNode next;
