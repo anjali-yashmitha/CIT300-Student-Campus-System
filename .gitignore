@@ -29,3 +29,8 @@ replay_pid*
 .vscode/
 out/
 bin/
+
+# Eclipse project files
+.classpath
+.project
+.settings/
