@@ -1,9 +1,9 @@
 package campus;
 
-public class StudentsServiceQueue {
+public class StudentServiceQueue {
     private ServiceRequestNode front, rear;
 
-    public StudentsServiceQueue() {
+    public StudentServiceQueue() {
         this.front = this.rear = null;
     }
 
