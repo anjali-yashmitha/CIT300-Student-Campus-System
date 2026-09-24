@@ -3,10 +3,10 @@ package campus;
 import java.util.*;
 
 public class CampusGraph {
-    // Adjacency list to store graph: Location Name -> List of connected Location Names
-    private Map<String, List<String>> adjList = new HashMap<>();
+    // 1. Change the adjacency list to store Location values
+    private Map<String, List<Location>> adjList = new HashMap<>();
 
-    // 1. Add Campus Location (Vertex) with error handling for duplicates
+    // 2. addLocation()
     public void addLocation(String locationName) {
         if (locationName == null || locationName.trim().isEmpty()) {
             System.out.println("Error: Location name cannot be empty.");
@@ -21,20 +21,7 @@ public class CampusGraph {
         System.out.println("Success: Location '" + trimmedName + "' added.");
     }
 
-    // 2. Remove Campus Location (Vertex) with error handling for missing locations
-    public void removeLocation(String locationName) {
-        if (locationName == null || !adjList.containsKey(locationName)) {
-            System.out.println("Error: Location not found!");
-            return;
-        }
-        for (String loc : adjList.keySet()) {
-            adjList.get(loc).remove(locationName);
-        }
-        adjList.remove(locationName);
-        System.out.println("Success: Location '" + locationName + "' and its connections removed.");
-    }
-
-    // 3. Add Campus Connection/Road (Edge - Undirected) with error handling
+    // 3. addConnection(), wrap names in Location objects
     public void addConnection(String loc1, String loc2) {
         if (!adjList.containsKey(loc1) || !adjList.containsKey(loc2)) {
             System.out.println("Error: One or both locations do not exist in the campus network!");
@@ -44,51 +31,76 @@ public class CampusGraph {
             System.out.println("Error: Cannot connect a location to itself.");
             return;
         }
-        List<String> list1 = adjList.get(loc1);
-        List<String> list2 = adjList.get(loc2);
 
-        if (list1.contains(loc2)) {
+        List<Location> list1 = adjList.get(loc1);
+        List<Location> list2 = adjList.get(loc2);
+
+        boolean alreadyConnected = list1.stream().anyMatch(loc -> loc.getName().equals(loc2));
+        if (alreadyConnected) {
             System.out.println("Error: Connection already exists between " + loc1 + " and " + loc2);
             return;
         }
 
-        list1.add(loc2);
-        list2.add(loc1); // Since roads are bidirectional
+        list1.add(new Location(loc2));
+        list2.add(new Location(loc1));
         System.out.println("Success: Road added between " + loc1 + " and " + loc2);
     }
 
-    // 4. Remove Campus Connection/Road (Edge)
+    // 4. removeLocation() and removeConnection()
+    public void removeLocation(String locationName) {
+        if (locationName == null || !adjList.containsKey(locationName)) {
+            System.out.println("Error: Location not found!");
+            return;
+        }
+        for (String loc : adjList.keySet()) {
+            adjList.get(loc).removeIf(l -> l.getName().equals(locationName));
+        }
+        adjList.remove(locationName);
+        System.out.println("Success: Location " + locationName + " and its connections removed.");
+    }
+
     public void removeConnection(String loc1, String loc2) {
         if (!adjList.containsKey(loc1) || !adjList.containsKey(loc2)) {
             System.out.println("Error: One or both locations do not exist!");
             return;
         }
-        List<String> list1 = adjList.get(loc1);
-        List<String> list2 = adjList.get(loc2);
 
-        if (!list1.contains(loc2)) {
+        List<Location> list1 = adjList.get(loc1);
+        List<Location> list2 = adjList.get(loc2);
+
+        boolean connected = list1.stream().anyMatch(l -> l.getName().equals(loc2));
+        if (!connected) {
             System.out.println("Error: No connection exists between " + loc1 + " and " + loc2);
             return;
         }
 
-        list1.remove(loc2);
-        list2.remove(loc1);
+        list1.removeIf(l -> l.getName().equals(loc2));
+        list2.removeIf(l -> l.getName().equals(loc1));
         System.out.println("Success: Road removed between " + loc1 + " and " + loc2);
     }
 
-    // 5. Display Campus Connections and Neighbours
+    // 5. displayConnections()
     public void displayConnections() {
         if (adjList.isEmpty()) {
             System.out.println("Campus network is empty.");
             return;
         }
-        System.out.println("\n--- Campus Network & Neighbours ---");
-        for (Map.Entry<String, List<String>> entry : adjList.entrySet()) {
-            System.out.println(entry.getKey() + " --> Connected to: " + entry.getValue());
+        System.out.println("\n--- Campus Network Connections ---");
+        for (Map.Entry<String, List<Location>> entry : adjList.entrySet()) {
+            System.out.print(entry.getKey() + " -> ");
+            List<Location> neighbors = entry.getValue();
+            for (int i = 0; i < neighbors.size(); i++) {
+                System.out.print(neighbors.get(i));
+                if (i < neighbors.size() - 1) {
+                    System.strPrint = ", ";
+                    System.out.print(", ");
+                }
+            }
+            System.out.println();
         }
     }
 
-    // 6. Breadth-First Search (BFS) Traversal
+    // 6. bfsTraversal()
     public void bfsTraversal(String startLocation) {
         if (!adjList.containsKey(startLocation)) {
             System.out.println("Error: Start location not found in the campus network!");
@@ -102,14 +114,15 @@ public class CampusGraph {
         queue.add(startLocation);
 
         System.out.print("\nBFS Traversal starting from " + startLocation + ": ");
+
         while (!queue.isEmpty()) {
             String current = queue.poll();
             System.out.print(current + " ");
 
-            for (String neighbor : adjList.get(current)) {
-                if (!visited.contains(neighbor)) {
-                    visited.add(neighbor);
-                    queue.add(neighbor);
+            for (Location neighbor : adjList.get(current)) {
+                if (!visited.contains(neighbor.getName())) {
+                    visited.add(neighbor.getName());
+                    queue.add(neighbor.getName());
                 }
             }
         }
