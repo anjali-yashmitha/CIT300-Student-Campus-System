@@ -1,3 +1,5 @@
+package campus;
+
 public class ActionNode {
     String actionDetails;
     ActionNode next;

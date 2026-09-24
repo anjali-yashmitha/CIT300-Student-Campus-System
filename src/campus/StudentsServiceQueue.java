@@ -1,3 +1,5 @@
+package campus;
+
 public class StudentsServiceQueue {
     private ServiceRequestNode front, rear;
 

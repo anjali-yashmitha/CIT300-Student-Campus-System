@@ -1,3 +1,5 @@
+package campus;
+
 public class ServiceRequestNode {
     String requestDetails;
     ServiceRequestNode next;

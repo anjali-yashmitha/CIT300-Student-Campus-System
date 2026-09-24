@@ -1,3 +1,5 @@
+package campus;
+
 public class ActionHistoryStack {
     private ActionNode top;
 
