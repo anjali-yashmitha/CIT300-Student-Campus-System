@@ -1,94 +1,143 @@
 package campus;
 
 public class HashTable {
-    
     private static class HashNode {
-        Student student;
+        String key;
+        Student value;
         HashNode next;
 
-        public HashNode(Student student) {
-            this.student = student;
+        public HashNode(String key, Student value) {
+            this.key = key;
+            this.value = value;
             this.next = null;
         }
     }
 
-    private static final int INITIAL_CAPACITY = 11; 
-    private HashNode[] table;
+    private HashNode[] buckets;
+    private int capacity;
     private int size;
 
     public HashTable() {
-        this.table = new HashNode[INITIAL_CAPACITY];
+        this(10);
+    }
+
+    public HashTable(int capacity) {
+        this.capacity = capacity;
+        this.buckets = new HashNode[capacity];
         this.size = 0;
     }
 
-    
-    private int hashFunction(String studentId) {
-        int hash = 0;
-        for (int i = 0; i < studentId.length(); i++) {
-            hash = (31 * hash + studentId.charAt(i)) % table.length;
-        }
-        return Math.abs(hash);
+    private int getBucketIndex(String key) {
+        int hashCode = Math.abs(key.toLowerCase().hashCode());
+        return hashCode % capacity;
     }
 
-    
     public void insert(Student student) {
         if (student == null || student.getStudentId() == null) {
-            System.out.println("Cannot insert invalid student record into HashTable.");
+            System.out.println("Cannot insert null student or null student ID.");
             return;
         }
 
-        int index = hashFunction(student.getStudentId());
-        HashNode head = table[index];
+        String key = student.getStudentId().trim();
+        int bucketIndex = getBucketIndex(key);
+        HashNode head = buckets[bucketIndex];
 
-        
-        HashNode current = head;
-        while (current != null) {
-            if (current.student.getStudentId().equalsIgnoreCase(student.getStudentId())) {
-                System.out.println("Student ID " + student.getStudentId() + " already exists in HashTable.");
+        // Check if key already exists, update value
+        while (head != null) {
+            if (head.key.equalsIgnoreCase(key)) {
+                head.value = student;
+                System.out.println("Updated student record for ID: " + key);
                 return;
             }
-            current = current.next;
+            head = head.next;
         }
 
-        
-        HashNode newNode = new HashNode(student);
-        newNode.next = head;
-        table[index] = newNode;
+        // Insert new node at the head of the chain
         size++;
+        head = buckets[bucketIndex];
+        HashNode newNode = new HashNode(key, student);
+        newNode.next = head;
+        buckets[bucketIndex] = newNode;
     }
 
-    
     public Student search(String studentId) {
         if (studentId == null || studentId.trim().isEmpty()) {
             return null;
         }
 
-        int index = hashFunction(studentId.trim());
-        HashNode current = table[index];
+        String key = studentId.trim();
+        int bucketIndex = getBucketIndex(key);
+        HashNode head = buckets[bucketIndex];
 
-        while (current != null) {
-            if (current.student.getStudentId().equalsIgnoreCase(studentId.trim())) {
-                return current.student;
+        while (head != null) {
+            if (head.key.equalsIgnoreCase(key)) {
+                return head.value;
             }
-            current = current.next;
+            head = head.next;
         }
 
-        return null; 
+        return null;
     }
 
-        public void displayAll() {
+    public boolean remove(String studentId) {
+        if (studentId == null || studentId.trim().isEmpty()) {
+            System.out.println("Invalid Student ID for removal.");
+            return false;
+        }
+
+        String key = studentId.trim();
+        int bucketIndex = getBucketIndex(key);
+        HashNode head = buckets[bucketIndex];
+        HashNode prev = null;
+
+        while (head != null) {
+            if (head.key.equalsIgnoreCase(key)) {
+                break;
+            }
+            prev = head;
+            head = head.next;
+        }
+
+        // Key was not present in Hash Table
+        if (head == null) {
+            System.out.println("Student ID " + key + " not found in Hash Table.");
+            return false;
+        }
+
+        size--;
+
+        // Remove node from chain
+        if (prev != null) {
+            prev.next = head.next;
+        } else {
+            buckets[bucketIndex] = head.next;
+        }
+
+        System.out.println("Successfully removed Student ID " + key + " from Hash Table.");
+        return true;
+    }
+
+    public void display() {
         if (size == 0) {
-            System.out.println("HashTable is empty.");
+            System.out.println("Hash Table is empty.");
             return;
         }
 
-        System.out.println("--- Student Records (HashTable) ---");
-        for (int i = 0; i < table.length; i++) {
-            HashNode current = table[i];
-            while (current != null) {
-                System.out.println("[Bucket " + i + "] " + current.student);
-                current = current.next;
+        System.out.println("--- Student Records (Hash Table Buckets) ---");
+        for (int i = 0; i < capacity; i++) {
+            HashNode head = buckets[i];
+            if (head != null) {
+                System.out.print("Bucket " + i + ": ");
+                while (head != null) {
+                    System.out.print("[" + head.value + "] -> ");
+                    head = head.next;
+                }
+                System.out.println("null");
             }
         }
+    }
+
+    public int getSize() {
+        return size;
     }
 }

@@ -7,7 +7,6 @@ public class StudentBST {
         this.root = null;
     }
 
-   
     public void insert(Student student) {
         if (student == null) {
             System.out.println("Cannot insert null student record.");
@@ -16,13 +15,11 @@ public class StudentBST {
         root = insertRecursive(root, student);
     }
 
-    
     private TreeNode insertRecursive(TreeNode current, Student student) {
         if (current == null) {
             return new TreeNode(student);
         }
 
-        
         int comparison = student.getStudentId().compareToIgnoreCase(current.student.getStudentId());
 
         if (comparison < 0) {
@@ -36,7 +33,6 @@ public class StudentBST {
         return current;
     }
 
-    
     public Student search(String studentId) {
         if (studentId == null || studentId.trim().isEmpty()) {
             return null;
@@ -44,7 +40,6 @@ public class StudentBST {
         return searchRecursive(root, studentId.trim());
     }
 
-    
     private Student searchRecursive(TreeNode current, String studentId) {
         if (current == null) {
             return null;
@@ -61,7 +56,54 @@ public class StudentBST {
         }
     }
 
-    
+    public void delete(String studentId) {
+        if (studentId == null || studentId.trim().isEmpty()) {
+            System.out.println("Invalid Student ID for deletion.");
+            return;
+        }
+        root = deleteRecursive(root, studentId.trim());
+    }
+
+    private TreeNode deleteRecursive(TreeNode current, String studentId) {
+        if (current == null) {
+            System.out.println("Student ID " + studentId + " not found in BST.");
+            return null;
+        }
+
+        int comparison = studentId.compareToIgnoreCase(current.student.getStudentId());
+
+        if (comparison < 0) {
+            current.left = deleteRecursive(current.left, studentId);
+        } else if (comparison > 0) {
+            current.right = deleteRecursive(current.right, studentId);
+        } else {
+            // Case 1: Leaf node (no children) or Case 2: One child
+            if (current.left == null) {
+                return current.right;
+            } else if (current.right == null) {
+                return current.left;
+            }
+
+            // Case 3: Node with two children
+            // Find the smallest value in the right subtree (in-order successor)
+            current.student = findMin(current.right);
+
+            // Delete the in-order successor
+            current.right = deleteRecursive(current.right, current.student.getStudentId());
+        }
+
+        return current;
+    }
+
+    private Student findMin(TreeNode current) {
+        Student minStudent = current.student;
+        while (current.left != null) {
+            minStudent = current.left.student;
+            current = current.left;
+        }
+        return minStudent;
+    }
+
     public void displayInOrder() {
         if (root == null) {
             System.out.println("BST is empty. No student records found.");
