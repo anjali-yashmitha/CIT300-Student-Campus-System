@@ -45,6 +45,7 @@ The application provides a menu-driven console interface with the following feat
 | Graph (Adjacency List) | Representing campus locations and connections | `CampusGraph`, `Location` |
 ## Project Structure
 
+```
 src/campus/
 ├── Main.java (shared menu, integrates all components)
 ├── Student.java
@@ -59,6 +60,7 @@ src/campus/
 ├── HashTable.java
 ├── Location.java
 └── CampusGraph.java
+```
 
 ## How to Run
 
